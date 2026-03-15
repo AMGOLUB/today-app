@@ -15,8 +15,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <script type="module" crossorigin src="./assets/index-CPu2h55N.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DmBy33uS.css">
+  <script type="module" crossorigin src="./assets/index-BQjnKnND.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-EQVo4_14.css">
 </head>
 <body>
     <div class="bg-layer" id="bgLayer"></div>
@@ -33,13 +33,7 @@
             <div class="logo">to<span>day</span></div>
             <div class="top-bar-actions">
                 <span class="completion-badge" id="completionBadge"></span>
-                <div class="sync-status" id="syncStatus" aria-label="Sync status">
-                    <svg class="sync-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c-1.66 0-3-4.03-3-9s1.34-9 3-9m0 18c1.66 0 3-4.03 3-9s-1.34-9-3-9"></path>
-                    </svg>
-                    <span class="sync-text">Offline</span>
-                </div>
-                <button class="darkmode-btn" id="darkmodeBtn" aria-label="Toggle dark mode">
+                <button class="icon-btn" id="darkmodeBtn" aria-label="Toggle dark mode" title="Dark mode">
                     <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none" aria-hidden="true">
                         <circle cx="12" cy="12" r="5"></circle>
                         <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
@@ -51,22 +45,15 @@
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
                 </button>
-                <button class="sound-btn" id="soundBtn" aria-label="Toggle sound effects" aria-pressed="true">
+                <button class="icon-btn" id="soundBtn" aria-label="Toggle sound effects" aria-pressed="true" title="Sound">
                     <svg class="sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                         <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
                     </svg>
                     <svg class="sound-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;" aria-hidden="true">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                         <line x1="23" y1="9" x2="17" y2="15"></line>
                         <line x1="17" y1="9" x2="23" y2="15"></line>
-                    </svg>
-                </button>
-                <button class="focus-mode-btn" id="focusModeBtn" aria-label="Toggle focus mode">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                 </button>
                 <button class="theme-btn" id="themeBtn" aria-label="Choose theme">
@@ -79,7 +66,7 @@
         <main class="main-content">
             <header class="header">
                 <div class="time-display" id="timeDisplay" aria-label="Current time">12:00</div>
-                <div class="date-display" id="dateDisplay">Wednesday, December 3</div>
+                <div class="date-display" id="dateDisplay">Sunday, March 15</div>
                 <h1 class="greeting">Good <span id="timeOfDay">morning</span>, <span id="userName">Aiden</span></h1>
             </header>
 
@@ -106,29 +93,18 @@
                 </div>
             </section>
 
+            <!-- Task Input: clean main row + collapsible options -->
             <div class="task-input-wrapper">
                 <div class="task-input-container">
-                    <div class="priority-picker">
-                        <div class="priority-picker-dot dot-high" data-priority="high" title="High priority"></div>
-                        <div class="priority-picker-dot dot-medium" data-priority="medium" title="Medium priority"></div>
-                        <div class="priority-picker-dot dot-low" data-priority="low" title="Low priority"></div>
-                    </div>
                     <input type="text" class="task-input" id="taskInput"
-                           placeholder="What do you need to do today?"
+                           placeholder="What's on your plate today?"
                            autocomplete="off" aria-label="New task text" maxlength="500">
-                    <input type="date" class="due-date-input" id="dueDateInput" aria-label="Due date" title="Set due date">
-                    <select class="project-select" id="projectSelect" aria-label="Project">
-                        <option value="">No project</option>
-                        <option value="Personal">Personal</option>
-                        <option value="Work">Work</option>
-                        <option value="Health">Health</option>
-                    </select>
-                    <select class="recurrence-select" id="recurrenceSelect" aria-label="Repeat">
-                        <option value="">No repeat</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
+                    <button class="input-options-toggle" id="inputOptionsToggle" aria-label="More options" title="Options">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                            <line x1="4" y1="8" x2="20" y2="8"></line>
+                            <line x1="4" y1="16" x2="20" y2="16"></line>
+                        </svg>
+                    </button>
                     <button class="add-btn" id="addBtn" aria-label="Add task">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -137,18 +113,55 @@
                         Add
                     </button>
                 </div>
+                <!-- Collapsible options row -->
+                <div class="task-options-row" id="taskOptionsRow">
+                    <div class="priority-picker">
+                        <span class="options-label">Priority</span>
+                        <div class="priority-picker-dot dot-high" data-priority="high" title="High"></div>
+                        <div class="priority-picker-dot dot-medium" data-priority="medium" title="Medium"></div>
+                        <div class="priority-picker-dot dot-low" data-priority="low" title="Low"></div>
+                    </div>
+                    <div class="option-group">
+                        <span class="options-label">Due</span>
+                        <input type="date" class="option-input" id="dueDateInput" aria-label="Due date">
+                    </div>
+                    <div class="option-group">
+                        <span class="options-label">Project</span>
+                        <select class="option-select" id="projectSelect" aria-label="Project">
+                            <option value="">None</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Health">Health</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <span class="options-label">Repeat</span>
+                        <select class="option-select" id="recurrenceSelect" aria-label="Repeat">
+                            <option value="">None</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
                 <p class="shortcut-hint">
-                    <kbd>Enter</kbd> add &middot; <kbd>Cmd+N</kbd> capture &middot; <kbd>J/K</kbd> navigate &middot; <kbd>?</kbd> shortcuts
+                    <kbd>Enter</kbd> add &middot; <kbd>&#8984;N</kbd> capture &middot; <kbd>?</kbd> all shortcuts
                 </p>
             </div>
 
             <section class="task-list-container" aria-label="Tasks">
                 <div class="task-list-header">
                     <span class="task-list-title">Today's Tasks</span>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <button class="templates-btn" id="templatesBtn" aria-label="Templates">Templates</button>
-                        <button class="review-btn" id="reviewBtn" aria-label="Review stats">Review</button>
-                        <button class="clear-completed-btn" id="clearCompletedBtn" aria-label="Clear completed tasks">Clear done</button>
+                    <div class="task-list-actions">
+                        <button class="pill-btn" id="templatesBtn" aria-label="Templates">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+                            Templates
+                        </button>
+                        <button class="pill-btn" id="reviewBtn" aria-label="Review stats">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            Review
+                        </button>
+                        <button class="pill-btn" id="clearCompletedBtn" aria-label="Clear completed tasks">Clear done</button>
                     </div>
                 </div>
                 <div class="project-filter-bar" id="projectFilterBar"></div>
@@ -161,12 +174,9 @@
         </main>
     </div>
 
-    <!-- Focus mode back button -->
+    <!-- Focus mode -->
     <button class="focus-back-btn" id="focusBackBtn" aria-label="Exit focus mode">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         Back to all tasks
     </button>
 
@@ -189,7 +199,7 @@
         </div>
         <div class="templates-grid"></div>
         <div style="margin-top:16px;text-align:center;">
-            <button class="templates-btn" id="saveTemplateBtn">Save current as template</button>
+            <button class="pill-btn" id="saveTemplateBtn">Save current as template</button>
         </div>
     </div>
 
@@ -204,25 +214,25 @@
     </div>
 
     <!-- Timer Widget -->
-    <div class="timer-widget" id="timerWidget" style="display:none">
+    <div class="timer-widget" id="timerWidget">
         <div class="timer-mode">Focus</div>
         <div class="timer-display">25:00</div>
         <div class="timer-task-name"></div>
         <div class="timer-progress"><div class="timer-progress-fill"></div></div>
         <div class="timer-controls">
-            <button class="timer-pause" aria-label="Pause/Resume timer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            <button class="timer-ctrl-btn timer-pause" aria-label="Pause/Resume">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
             </button>
-            <button class="timer-skip" aria-label="Skip to next phase">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+            <button class="timer-ctrl-btn timer-skip" aria-label="Skip">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
             </button>
-            <button class="timer-stop" aria-label="Stop timer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <button class="timer-ctrl-btn timer-stop" aria-label="Stop">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="6" width="12" height="12"></rect></svg>
             </button>
         </div>
     </div>
 
-    <!-- Keyboard Shortcuts Overlay -->
+    <!-- Shortcuts Overlay -->
     <div class="shortcuts-overlay" id="shortcutsOverlay">
         <div class="shortcuts-title">Keyboard Shortcuts</div>
         <div class="shortcut-row"><span>Navigate</span><kbd>J</kbd> <kbd>K</kbd></div>
@@ -230,14 +240,11 @@
         <div class="shortcut-row"><span>Delete</span><kbd>X</kbd></div>
         <div class="shortcut-row"><span>Subtasks</span><kbd>Tab</kbd></div>
         <div class="shortcut-row"><span>Focus mode</span><kbd>F</kbd></div>
-        <div class="shortcut-row"><span>Quick add</span><kbd>Cmd+N</kbd></div>
+        <div class="shortcut-row"><span>Quick add</span><kbd>&#8984;N</kbd></div>
         <div class="shortcut-row"><span>Close</span><kbd>Esc</kbd></div>
     </div>
 
-    <!-- Confetti Canvas -->
     <canvas id="confettiCanvas"></canvas>
-
-    <!-- Screen reader announcements -->
     <div class="sr-only" aria-live="polite" id="statusAnnouncer"></div>
 </body>
 </html>
