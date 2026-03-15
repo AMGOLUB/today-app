@@ -1,0 +1,22 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2"/>
+      <stop offset="50%" style="stop-color:#fcb69f"/>
+      <stop offset="100%" style="stop-color:#ff9a9e"/>
+    </linearGradient>
+    <linearGradient id="check" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#81b29a"/>
+      <stop offset="100%" style="stop-color:#6a9a82"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background rounded square -->
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
+  
+  <!-- Inner white glassmorphic circle -->
+  <circle cx="512" cy="512" r="300" fill="white" fill-opacity="0.7"/>
+  
+  <!-- Checkmark -->
+  <path d="M380 520L470 610L644 436" stroke="url(#check)" stroke-width="64" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

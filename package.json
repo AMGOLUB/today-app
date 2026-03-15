@@ -1,0 +1,31 @@
+{
+  "name": "today",
+  "version": "1.0.0",
+  "description": "Your Daily Focus - A beautiful task management app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac",
+    "build-all": "electron-builder --mac --win --linux"
+  },
+  "author": "Aiden",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.aiden.today",
+    "productName": "Today",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "icon.icns",
+      "target": ["dmg", "zip"]
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "icon.icns"
+    ]
+  }
+}
