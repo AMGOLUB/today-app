@@ -1,31 +1,49 @@
 {
   "name": "today",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Your Daily Focus - A beautiful task management app",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder --mac",
-    "build-all": "electron-builder --mac --win --linux"
+    "dev": "vite",
+    "dev:electron": "concurrently \"vite\" \"sleep 2 && electron .\"",
+    "build": "vite build",
+    "start": "vite build && electron .",
+    "build:mac": "vite build && electron-builder --mac",
+    "build:all": "vite build && electron-builder --mac --win --linux",
+    "lint": "eslint src/",
+    "format": "prettier --write \"src/**/*.{js,css,html}\""
   },
   "author": "Aiden",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "concurrently": "^9.2.1",
     "electron": "^28.0.0",
-    "electron-builder": "^24.9.1"
+    "electron-builder": "^24.9.1",
+    "eslint": "^10.0.3",
+    "globals": "^16.5.0",
+    "prettier": "^3.8.1",
+    "vite": "^8.0.0"
   },
   "build": {
     "appId": "com.aiden.today",
     "productName": "Today",
+    "directories": {
+      "output": "out"
+    },
     "mac": {
       "category": "public.app-category.productivity",
-      "icon": "icon.icns",
-      "target": ["dmg", "zip"]
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "files": [
       "main.js",
-      "index.html",
-      "icon.icns"
+      "preload.js",
+      "dist/**/*",
+      "assets/**/*"
     ]
   }
 }

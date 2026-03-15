@@ -1,0 +1,295 @@
+/* Top bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+  padding-left: 80px; /* Space for traffic lights */
+  -webkit-app-region: drag; /* Makes the top bar draggable */
+}
+
+.logo {
+  -webkit-app-region: no-drag; /* Logo should be clickable */
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  padding: 12px 20px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  -webkit-app-region: no-drag; /* Buttons should be clickable */
+}
+
+/* Sync status indicator */
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.sync-status.synced {
+  color: var(--success);
+  border-color: rgba(129, 178, 154, 0.3);
+}
+
+.sync-status.syncing .sync-icon {
+  animation: spin 1s linear infinite;
+}
+
+.sync-status.offline {
+  color: var(--text-muted);
+}
+
+.sync-status.error {
+  color: var(--accent);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sync-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.sound-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.sound-btn:hover {
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.sound-btn.muted {
+  opacity: 0.5;
+}
+
+.sound-btn.muted .sound-on {
+  display: none;
+}
+
+.sound-btn.muted .sound-off {
+  display: block !important;
+}
+
+/* Theme button */
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.theme-btn:hover {
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.theme-btn .dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #faf9f7 0%, #f0efed 100%);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Theme modal */
+.theme-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.theme-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.theme-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: var(--bg-card-solid);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  width: 90%;
+  max-width: 480px;
+  border: 1px solid var(--border-strong);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 80px rgba(255, 255, 255, 0.3);
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-modal-overlay.open + .theme-modal,
+.theme-modal.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.theme-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.theme-modal-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.theme-modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-input);
+  backdrop-filter: blur(10px);
+  color: var(--text-secondary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-modal-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.theme-card {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.theme-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.theme-card::after {
+  content: attr(data-name);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.theme-card:hover {
+  transform: scale(1.05) translateY(-4px);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.theme-card.active {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 3px var(--accent-light),
+    var(--shadow-md);
+  transform: scale(1.02);
+}

@@ -1,111 +1,122 @@
-# Today - Your Daily Focus App
+# Today
 
-A beautiful, calming task management app for macOS with cloud sync.
+Your Daily Focus — A beautiful task management app with glassmorphic design, 9 gradient themes, satisfying sound effects, and optional Firebase cloud sync.
 
 ## Features
-- ✨ Gorgeous glassmorphic design
-- 🎨 9 calming gradient themes
-- 🔊 Satisfying sound effects
-- 💾 Auto-saves your tasks locally
-- ☁️ **Cloud sync with Firebase** (optional)
-- 📊 Visual progress tracking
 
-## Building the App
+- 9 calming gradient themes with smooth transitions
+- Satisfying audio feedback (Web Audio API)
+- Subtask support with progress tracking
+- SVG progress ring with real-time updates
+- Optional Firebase Firestore cloud sync across devices
+- Daily auto-reset (completed tasks clear on new day)
+- Keyboard accessible (Tab, Enter, Space navigation)
+- Screen reader announcements for all actions
+
+## Getting Started
 
 ### Prerequisites
-1. Install [Node.js](https://nodejs.org/) (v18 or later recommended)
 
-### Steps
+- [Node.js](https://nodejs.org/) v18 or later
+- npm (comes with Node.js)
 
-1. Open Terminal and navigate to this folder:
-   ```bash
-   cd /path/to/today-app
-   ```
+### Setup
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Build the Mac app:
-   ```bash
-   npm run build
-   ```
-
-4. Find your app in the `dist` folder!
-
----
-
-## Setting Up Cloud Sync (Firebase)
-
-To sync tasks between your Mac app, website, and other devices:
-
-### Step 1: Create a Firebase Project
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Click **"Create a project"**
-3. Name it something like "today-tasks"
-4. Disable Google Analytics (not needed) and click **Create**
-
-### Step 2: Enable Firestore Database
-
-1. In your Firebase project, click **"Build"** → **"Firestore Database"**
-2. Click **"Create database"**
-3. Choose **"Start in test mode"** (for now)
-4. Select a location close to you
-5. Click **Enable**
-
-### Step 3: Enable Anonymous Authentication
-
-1. Click **"Build"** → **"Authentication"**
-2. Click **"Get started"**
-3. Under "Sign-in providers", click **"Anonymous"**
-4. Toggle **Enable** and click **Save**
-
-### Step 4: Get Your Config
-
-1. Click the **gear icon** → **"Project settings"**
-2. Scroll down to **"Your apps"** and click the **web icon** (</>)
-3. Register your app (name it "today-web")
-4. Copy the `firebaseConfig` object - it looks like this:
-   ```javascript
-   const firebaseConfig = {
-     apiKey: "AIza...",
-     authDomain: "your-project.firebaseapp.com",
-     projectId: "your-project-id",
-     storageBucket: "your-project.appspot.com",
-     messagingSenderId: "123456789",
-     appId: "1:123456789:web:abc123"
-   };
-   ```
-
-### Step 5: Add Config to Your App
-
-1. Open `index.html` in a text editor
-2. Find the `firebaseConfig` section near the top of the `<script>` tag
-3. Replace the placeholder values with your real config
-4. Save the file
-5. Rebuild the app: `npm run build`
-
-### Done! 🎉
-
-Your tasks will now sync across all devices using the same Firebase project!
-
----
-
-## Development
-
-To run the app in development mode:
 ```bash
-npm start
+# Install dependencies
+npm install
+
+# Start the Vite dev server (browser only)
+npm run dev
+
+# Start with Electron (full desktop app)
+npm run dev:electron
 ```
 
-## Troubleshooting
+### Firebase Setup (Optional)
 
-**Sync shows "Local Only"**: Firebase config not set up yet - follow the steps above.
+Cloud sync is optional. Without it, the app works in local-only mode using localStorage.
 
-**Sync shows "Error"**: Check your Firebase console to make sure Firestore and Auth are enabled.
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable **Firestore Database** (start in production mode with proper security rules)
+3. Enable **Anonymous Authentication** in the Authentication section
+4. Get your config from Project Settings > General > Your Apps > Web App
+5. Copy `.env.example` to `.env` and fill in your credentials:
 
-**Tasks not syncing**: Make sure you're connected to the internet and Firebase is configured correctly.
+```bash
+cp .env.example .env
+```
 
-Enjoy your productive days! 🌟
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_SYNC_ID=your-unique-sync-id
+VITE_USERNAME=YourName
+```
+
+**Important:** Never commit your `.env` file. It is already in `.gitignore`.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite dev server (browser) |
+| `npm run dev:electron` | Start Vite + Electron together |
+| `npm start` | Build + launch Electron |
+| `npm run build` | Vite production build to `dist/` |
+| `npm run build:mac` | Build macOS `.app` (dmg + zip) |
+| `npm run build:all` | Build for macOS, Windows, Linux |
+| `npm run lint` | Run ESLint on `src/` |
+| `npm run format` | Format code with Prettier |
+
+## Project Structure
+
+```
+today-app/
+├── index.html              # Shell HTML (loads modules via Vite)
+├── main.js                 # Electron main process
+├── preload.js              # Electron preload script
+├── vite.config.mjs         # Vite build configuration
+├── eslint.config.mjs       # ESLint configuration
+├── src/
+│   ├── index.js            # Entry point
+│   ├── styles/
+│   │   ├── index.css       # CSS entry (imports all below)
+│   │   ├── variables.css   # CSS custom properties
+│   │   ├── base.css        # Reset, layout, accessibility
+│   │   ├── layout.css      # Header, content, quotes, animations
+│   │   ├── components.css  # Top bar, buttons, theme modal
+│   │   ├── tasks.css       # Task items, subtasks, inputs
+│   │   └── progress.css    # Progress ring, stats
+│   └── modules/
+│       ├── app.js          # Orchestrator (initializes everything)
+│       ├── store.js        # Pub/sub state management
+│       ├── tasks.js        # Task CRUD, rendering, event delegation
+│       ├── sounds.js       # Web Audio API sound system
+│       ├── themes.js       # 9 gradient themes + modal
+│       ├── firebase.js     # Firebase Firestore integration
+│       ├── progress.js     # Progress ring updates
+│       ├── time.js         # Clock, date, greeting
+│       ├── quotes.js       # Motivational quotes
+│       └── utils.js        # Shared utilities + constants
+└── assets/
+    ├── icon.svg
+    ├── icon.png
+    └── icon.icns           # macOS app icon (generated)
+```
+
+## Architecture
+
+- **Vanilla JS** with ES modules — no framework overhead
+- **Vite** for bundling, HMR, and environment variable support
+- **Pub/sub store** replaces global variables — modules subscribe to state changes
+- **Event delegation** on the task list — single listener handles all task/subtask interactions
+- **Firebase credentials** loaded from `.env` via `import.meta.env` — never in source code
+
+## License
+
+MIT

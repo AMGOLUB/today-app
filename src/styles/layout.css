@@ -1,0 +1,214 @@
+/* Main content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 24px 40px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Header section */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+  animation: fadeUp 0.6s ease-out;
+}
+
+.time-display {
+  font-family: 'Fraunces', serif;
+  font-size: 5rem;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.date-display {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.greeting {
+  font-family: 'Fraunces', serif;
+  font-size: 1.9rem;
+  font-weight: 400;
+  margin-top: 20px;
+  color: var(--text-primary);
+}
+
+.greeting span {
+  font-style: italic;
+  color: var(--accent);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.empty-illustration {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.empty-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* Motivational quote */
+.quote-section {
+  margin-top: auto;
+  padding-top: 40px;
+  text-align: center;
+  animation: fadeUp 0.6s ease-out 0.4s both;
+}
+
+.quote-text {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.6;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  padding: 20px 28px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Keyboard shortcut hint */
+.shortcut-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 14px;
+}
+
+.shortcut-hint kbd {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes taskSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes taskComplete {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .top-bar {
+    padding: 16px 20px;
+  }
+
+  .main-content {
+    padding: 16px 20px 32px;
+  }
+
+  .time-display {
+    font-size: 3.5rem;
+  }
+
+  .greeting {
+    font-size: 1.5rem;
+  }
+
+  .progress-section {
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+  }
+
+  .progress-stats {
+    flex-direction: row;
+    gap: 28px;
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .task-input-container {
+    flex-direction: column;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .task-input {
+    width: 100%;
+    text-align: center;
+  }
+
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .shape-1,
+  .shape-2 {
+    display: block;
+  }
+
+  .shape-3,
+  .shape-4 {
+    display: none;
+  }
+}
