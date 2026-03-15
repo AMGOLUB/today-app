@@ -1,0 +1,68 @@
+[data-theme='dark'] {
+  --bg-base: #1a1a2e;
+  --bg-card: rgba(30, 30, 50, 0.7);
+  --bg-card-solid: rgba(30, 30, 50, 0.85);
+  --bg-input: rgba(30, 30, 50, 0.6);
+  --bg-hover: rgba(40, 40, 60, 0.9);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --text-primary: #e8e8e8;
+  --text-secondary: #b0b0b0;
+  --text-muted: #707070;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 40px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='oled'] {
+  --bg-base: #000000;
+  --bg-card: rgba(10, 10, 10, 0.9);
+  --bg-card-solid: rgba(10, 10, 10, 0.95);
+  --bg-input: rgba(10, 10, 10, 0.8);
+  --bg-hover: rgba(20, 20, 20, 0.95);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --text-muted: #606060;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-glow: none;
+}
+
+/* Dim theme gradients in dark modes */
+[data-theme='dark'] .bg-layer,
+[data-theme='oled'] .bg-layer {
+  filter: brightness(0.3);
+}
+
+[data-theme='dark'] .floating-shapes .shape,
+[data-theme='oled'] .floating-shapes .shape {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Dark mode button */
+.darkmode-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.darkmode-btn:hover {
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}

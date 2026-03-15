@@ -1,0 +1,90 @@
+.project-filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.project-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.project-filter-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.project-filter-pill:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.project-filter-pill.active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.filter-count {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
+/* Project badge on task items */
+.project-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-left: 6px;
+  color: white;
+  background: var(--badge-color, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Project selector in input area */
+.project-selector {
+  position: relative;
+}
+
+.project-select {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  outline: none;
+  padding: 8px 4px;
+}
+
+.project-select option {
+  background: var(--bg-card-solid);
+  color: var(--text-primary);
+}

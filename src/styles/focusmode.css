@@ -1,0 +1,83 @@
+body.focus-mode .header,
+body.focus-mode .progress-section,
+body.focus-mode .quote-section,
+body.focus-mode .project-filter-bar,
+body.focus-mode .task-input-wrapper,
+body.focus-mode .task-list-header {
+  display: none !important;
+}
+
+body.focus-mode .task-list .task-item:not(.focused) {
+  display: none !important;
+}
+
+body.focus-mode .task-item.focused {
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  margin-top: 40px;
+}
+
+body.focus-mode .task-item.focused .task-text {
+  font-size: 1.4rem;
+}
+
+body.focus-mode .task-item.focused .task-time {
+  font-size: 0.9rem;
+}
+
+.focus-mode-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm), var(--shadow-glow);
+}
+
+.focus-mode-btn:hover {
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+}
+
+.focus-mode-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.focus-back-btn {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bg-card-solid);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+  animation: fadeUp 0.3s ease;
+}
+
+.focus-back-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}

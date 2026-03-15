@@ -4,12 +4,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 32px;
-  padding-left: 80px; /* Space for traffic lights */
-  -webkit-app-region: drag; /* Makes the top bar draggable */
 }
 
 .logo {
-  -webkit-app-region: no-drag; /* Logo should be clickable */
+  /* Logo should be clickable */
   font-family: 'Fraunces', serif;
   font-size: 1.5rem;
   font-weight: 500;
@@ -32,7 +30,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  -webkit-app-region: no-drag; /* Buttons should be clickable */
+  /* Buttons should be clickable */
 }
 
 /* Sync status indicator */

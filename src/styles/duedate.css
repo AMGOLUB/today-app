@@ -1,0 +1,65 @@
+.due-date-input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  outline: none;
+  padding: 8px 4px;
+  cursor: pointer;
+  max-width: 140px;
+}
+
+.due-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+[data-theme='dark'] .due-date-input::-webkit-calendar-picker-indicator,
+[data-theme='oled'] .due-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+.due-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.due-overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.due-today {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.due-tomorrow {
+  background: rgba(234, 179, 8, 0.15);
+  color: #b45309;
+}
+
+[data-theme='dark'] .due-tomorrow,
+[data-theme='oled'] .due-tomorrow {
+  color: #eab308;
+}
+
+.due-upcoming {
+  background: rgba(100, 100, 100, 0.1);
+  color: var(--text-muted);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

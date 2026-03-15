@@ -1,6 +1,17 @@
 @import './variables.css';
+@import './darkmode.css';
 @import './base.css';
 @import './layout.css';
 @import './components.css';
 @import './tasks.css';
 @import './progress.css';
+@import './priority.css';
+@import './duedate.css';
+@import './projects.css';
+@import './keyboard.css';
+@import './timer.css';
+@import './focusmode.css';
+@import './recurrence.css';
+@import './templates.css';
+@import './review.css';
+@import './celebrations.css';

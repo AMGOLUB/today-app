@@ -7,16 +7,32 @@ import {
   MAX_SUBTASK_LENGTH,
   MAX_TASKS,
   MAX_SUBTASKS_PER_TASK,
+  PRIORITY_ORDER,
 } from './utils.js';
 import { saveTaskToFirebase, deleteTaskFromFirebase, updateTaskInFirebase } from './firebase.js';
+import { getProjectColor } from './projects.js';
+import { startTimer, formatTimeSpent } from './timer.js';
+import { recordCompletion } from './review.js';
+import { allComplete, streakMilestone, updateCompletionBadge } from './celebrations.js';
+import { processRecurrence } from './recurrence.js';
 
 let taskListEl, announcer;
+let pendingPriority = 'none';
 
 // ============================================
-// DATA MIGRATION — handle old numeric IDs
+// DATA MIGRATION
 // ============================================
-function migrateTasks(tasks) {
+export function migrateTasks(tasks) {
   return tasks.map((task) => ({
+    priority: 'none',
+    dueDate: null,
+    dueTime: null,
+    project: null,
+    tags: [],
+    recurrence: null,
+    streak: 0,
+    lastCompletedDate: null,
+    timeSpent: 0,
     ...task,
     id: typeof task.id === 'number' ? String(task.id) : task.id,
     createdAt: task.createdAt || (typeof task.id === 'number' ? task.id : Date.now()),
@@ -37,24 +53,26 @@ export function initTasks() {
   // Migrate existing data
   const { tasks } = store.getState();
   const migrated = migrateTasks(tasks);
-  store.setState({ tasks: migrated });
 
-  // Day reset — clear completed tasks on new day
+  // Day reset
   const today = new Date().toDateString();
   const lastDate = localStorage.getItem('today_date');
+  let resetTasks = migrated;
   if (lastDate !== today) {
-    const current = store.getState().tasks;
-    const filtered = current.filter((t) => {
+    resetTasks = processRecurrence(migrated);
+    resetTasks = resetTasks.filter((t) => {
+      if (t.recurrence) return true; // keep recurring tasks
       if (t.subtasks && t.subtasks.length > 0) {
         return !t.subtasks.every((st) => st.completed);
       }
       return !t.completed;
     });
-    store.setState({ tasks: filtered });
     localStorage.setItem('today_date', today);
   }
+  store.setState({ tasks: resetTasks });
+  saveTasks();
 
-  // Event delegation on the task list
+  // Event delegation
   taskListEl.addEventListener('click', handleTaskListClick);
   taskListEl.addEventListener('keydown', handleTaskListKeydown);
 
@@ -81,10 +99,19 @@ export function initTasks() {
 
   document.getElementById('clearCompletedBtn').addEventListener('click', clearCompleted);
 
-  // Subscribe to store — re-render on any task change
-  store.subscribe(renderTasks);
+  // Priority picker
+  document.querySelector('.priority-picker')?.addEventListener('click', (e) => {
+    const dot = e.target.closest('.priority-picker-dot');
+    if (!dot) return;
+    const p = dot.dataset.priority;
+    pendingPriority = pendingPriority === p ? 'none' : p;
+    document.querySelectorAll('.priority-picker-dot').forEach((d) => {
+      d.classList.toggle('active', d.dataset.priority === pendingPriority);
+    });
+    sounds.click();
+  });
 
-  // Initial render
+  store.subscribe(renderTasks);
   renderTasks();
 }
 
@@ -96,68 +123,48 @@ function handleTaskListClick(e) {
   if (!taskItem) return;
   const taskId = taskItem.dataset.id;
 
-  if (e.target.closest('.task-checkbox')) {
-    toggleTask(taskId);
-    return;
-  }
-  if (e.target.closest('.task-delete')) {
-    deleteTask(taskId);
-    return;
-  }
-  if (e.target.closest('.task-expand')) {
-    toggleExpand(taskId);
-    return;
-  }
-  if (e.target.closest('.task-add-subtask')) {
-    toggleAddSubtask(taskId);
-    return;
-  }
+  // Focus this task for keyboard nav
+  store.setState({ focusedTaskId: taskId });
+
+  if (e.target.closest('.task-checkbox')) return toggleTask(taskId);
+  if (e.target.closest('.task-delete')) return deleteTask(taskId);
+  if (e.target.closest('.task-expand')) return toggleExpand(taskId);
+  if (e.target.closest('.task-add-subtask')) return toggleAddSubtask(taskId);
+  if (e.target.closest('.task-start-focus')) return startTimer(taskId);
+  if (e.target.closest('.priority-dot')) return cyclePriority(taskId);
   if (e.target.closest('.subtask-checkbox')) {
-    const subtaskItem = e.target.closest('.subtask-item');
-    if (subtaskItem) toggleSubtask(taskId, subtaskItem.dataset.subtaskId);
+    const si = e.target.closest('.subtask-item');
+    if (si) toggleSubtask(taskId, si.dataset.subtaskId);
     return;
   }
   if (e.target.closest('.subtask-delete')) {
-    const subtaskItem = e.target.closest('.subtask-item');
-    if (subtaskItem) deleteSubtask(taskId, subtaskItem.dataset.subtaskId);
+    const si = e.target.closest('.subtask-item');
+    if (si) deleteSubtask(taskId, si.dataset.subtaskId);
     return;
   }
-  if (e.target.closest('.subtask-add-btn')) {
-    addSubtaskFromInput(taskId);
-    return;
-  }
+  if (e.target.closest('.subtask-add-btn')) return addSubtaskFromInput(taskId);
 }
 
 function handleTaskListKeydown(e) {
-  // Enter on subtask input
   if (e.key === 'Enter' && e.target.classList.contains('subtask-input')) {
-    const taskItem = e.target.closest('.task-item');
-    if (taskItem) addSubtaskFromInput(taskItem.dataset.id);
+    const ti = e.target.closest('.task-item');
+    if (ti) addSubtaskFromInput(ti.dataset.id);
     return;
   }
-
-  // Space/Enter on custom checkboxes
   if (e.key === 'Enter' || e.key === ' ') {
     if (e.target.classList.contains('task-checkbox')) {
       e.preventDefault();
-      const taskItem = e.target.closest('.task-item');
-      if (taskItem) toggleTask(taskItem.dataset.id);
-      return;
-    }
-    if (e.target.classList.contains('subtask-checkbox')) {
+      const ti = e.target.closest('.task-item');
+      if (ti) toggleTask(ti.dataset.id);
+    } else if (e.target.classList.contains('subtask-checkbox')) {
       e.preventDefault();
-      const taskItem = e.target.closest('.task-item');
-      const subtaskItem = e.target.closest('.subtask-item');
-      if (taskItem && subtaskItem) {
-        toggleSubtask(taskItem.dataset.id, subtaskItem.dataset.subtaskId);
-      }
+      const ti = e.target.closest('.task-item');
+      const si = e.target.closest('.subtask-item');
+      if (ti && si) toggleSubtask(ti.dataset.id, si.dataset.subtaskId);
     }
   }
 }
 
-// ============================================
-// ANNOUNCE (accessibility)
-// ============================================
 function announce(message) {
   if (announcer) announcer.textContent = message;
 }
@@ -167,11 +174,14 @@ function announce(message) {
 // ============================================
 function addTask(text) {
   const trimmed = text.trim();
-  if (!trimmed) return;
-  if (trimmed.length > MAX_TASK_LENGTH) return;
+  if (!trimmed || trimmed.length > MAX_TASK_LENGTH) return;
 
-  const { tasks } = store.getState();
+  const { tasks, activeProject } = store.getState();
   if (tasks.length >= MAX_TASKS) return;
+
+  const dueDateInput = document.getElementById('dueDateInput');
+  const projectSelect = document.getElementById('projectSelect');
+  const recurrenceSelect = document.getElementById('recurrenceSelect');
 
   const newTask = {
     id: generateId(),
@@ -180,12 +190,29 @@ function addTask(text) {
     subtasks: [],
     expanded: false,
     createdAt: Date.now(),
+    priority: pendingPriority,
+    dueDate: dueDateInput?.value || null,
+    dueTime: null,
+    project:
+      projectSelect?.value ||
+      (activeProject !== 'all' && activeProject !== 'none' ? activeProject : null),
+    tags: [],
+    recurrence: recurrenceSelect?.value ? { type: recurrenceSelect.value } : null,
+    streak: 0,
+    lastCompletedDate: null,
+    timeSpent: 0,
   };
 
   store.setState({ tasks: [...tasks, newTask] });
   saveTasks();
   saveTaskToFirebase(newTask);
   announce(`Task added: ${trimmed}`);
+
+  // Reset inputs
+  if (dueDateInput) dueDateInput.value = '';
+  if (recurrenceSelect) recurrenceSelect.value = '';
+  pendingPriority = 'none';
+  document.querySelectorAll('.priority-picker-dot').forEach((d) => d.classList.remove('active'));
 }
 
 function toggleTask(id) {
@@ -209,13 +236,23 @@ function toggleTask(id) {
       store.setState({ tasks: updated });
       saveTasks();
       updateTaskInFirebase({ ...task, completed: !task.completed });
+
+      if (!wasCompleted) {
+        recordCompletion();
+        updateCompletionBadge();
+        if (task.streak > 0) streakMilestone(task.streak);
+      }
+
       announce(wasCompleted ? `Task uncompleted: ${task.text}` : `Task completed: ${task.text}`);
 
-      // Check for 100% completion
+      // 100% check
       const total = updated.length;
       const completed = updated.filter((t) => t.completed).length;
       if (total > 0 && completed === total && !wasCompleted) {
-        setTimeout(() => sounds.fanfare(), 200);
+        setTimeout(() => {
+          sounds.fanfare();
+          allComplete();
+        }, 200);
       }
     },
     wasCompleted ? 0 : 300,
@@ -235,21 +272,28 @@ function deleteTask(id) {
 function clearCompleted() {
   const { tasks } = store.getState();
   const completedTasks = tasks.filter((t) => {
-    if (t.subtasks && t.subtasks.length > 0) {
-      return t.subtasks.every((st) => st.completed);
-    }
+    if (t.subtasks && t.subtasks.length > 0) return t.subtasks.every((st) => st.completed);
     return t.completed;
   });
-
   if (completedTasks.length > 0) {
     sounds.remove();
     completedTasks.forEach((t) => deleteTaskFromFirebase(t.id));
-    store.setState({
-      tasks: tasks.filter((t) => !completedTasks.some((ct) => ct.id === t.id)),
-    });
+    store.setState({ tasks: tasks.filter((t) => !completedTasks.some((ct) => ct.id === t.id)) });
     saveTasks();
     announce(`Cleared ${completedTasks.length} completed tasks`);
   }
+}
+
+function cyclePriority(taskId) {
+  const cycle = ['none', 'low', 'medium', 'high'];
+  const { tasks } = store.getState();
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task) return;
+  const next = cycle[(cycle.indexOf(task.priority || 'none') + 1) % cycle.length];
+  const updated = tasks.map((t) => (t.id === taskId ? { ...t, priority: next } : t));
+  store.setState({ tasks: updated });
+  saveTasks();
+  sounds.click();
 }
 
 // ============================================
@@ -261,124 +305,92 @@ function toggleExpand(taskId) {
   sounds.click();
   store.setState({ tasks: updated });
   saveTasks();
-  const task = updated.find((t) => t.id === taskId);
-  if (task) saveTaskToFirebase(task);
 }
 
 function toggleAddSubtask(taskId) {
   const { tasks } = store.getState();
   const task = tasks.find((t) => t.id === taskId);
   if (!task) return;
-
   const updated = tasks.map((t) => (t.id === taskId ? { ...t, expanded: !t.expanded } : t));
   sounds.click();
   store.setState({ tasks: updated });
   saveTasks();
-  saveTaskToFirebase({ ...task, expanded: !task.expanded });
-
-  // Focus the input if expanding
   if (!task.expanded) {
     setTimeout(() => {
-      const taskEl = taskListEl.querySelector(`.task-item[data-id="${taskId}"]`);
-      const input = taskEl?.querySelector('.subtask-input');
-      if (input) input.focus();
+      const el = taskListEl.querySelector(`.task-item[data-id="${taskId}"] .subtask-input`);
+      if (el) el.focus();
     }, 100);
   }
 }
 
 function addSubtaskFromInput(taskId) {
-  const taskEl = taskListEl.querySelector(`.task-item[data-id="${taskId}"]`);
-  const input = taskEl?.querySelector('.subtask-input');
-  if (input && input.value.trim()) {
-    addSubtask(taskId, input.value.trim());
-    input.value = '';
-    input.focus();
+  const el = taskListEl.querySelector(`.task-item[data-id="${taskId}"] .subtask-input`);
+  if (el && el.value.trim()) {
+    addSubtask(taskId, el.value.trim());
+    el.value = '';
+    el.focus();
   }
 }
 
 function addSubtask(taskId, text) {
   if (text.length > MAX_SUBTASK_LENGTH) return;
-
   const { tasks } = store.getState();
   const task = tasks.find((t) => t.id === taskId);
-  if (!task) return;
-
-  const subtasks = task.subtasks || [];
-  if (subtasks.length >= MAX_SUBTASKS_PER_TASK) return;
-
-  const newSubtask = {
-    id: generateId(),
-    text,
-    completed: false,
-  };
+  if (!task || (task.subtasks || []).length >= MAX_SUBTASKS_PER_TASK) return;
 
   const updatedTask = {
     ...task,
-    subtasks: [...subtasks, newSubtask],
+    subtasks: [...(task.subtasks || []), { id: generateId(), text, completed: false }],
     expanded: true,
   };
-
-  const updated = tasks.map((t) => (t.id === taskId ? updatedTask : t));
   sounds.pop();
-  store.setState({ tasks: updated });
+  store.setState({ tasks: tasks.map((t) => (t.id === taskId ? updatedTask : t)) });
   saveTasks();
-  saveTaskToFirebase(updatedTask);
   announce(`Subtask added: ${text}`);
 }
 
 function toggleSubtask(taskId, subtaskId) {
   const { tasks } = store.getState();
   const task = tasks.find((t) => t.id === taskId);
-  if (!task || !task.subtasks) return;
-
+  if (!task?.subtasks) return;
   const subtask = task.subtasks.find((st) => st.id === subtaskId);
   if (!subtask) return;
 
   const wasCompleted = subtask.completed;
-  if (!wasCompleted) {
-    sounds.complete();
-  } else {
-    sounds.uncomplete();
-  }
+  wasCompleted ? sounds.uncomplete() : sounds.complete();
 
-  const updatedSubtasks = task.subtasks.map((st) =>
+  const updatedSubs = task.subtasks.map((st) =>
     st.id === subtaskId ? { ...st, completed: !st.completed } : st,
   );
-  const updatedTask = { ...task, subtasks: updatedSubtasks };
-  const updated = tasks.map((t) => (t.id === taskId ? updatedTask : t));
-
-  store.setState({ tasks: updated });
+  const updatedTask = { ...task, subtasks: updatedSubs };
+  store.setState({ tasks: tasks.map((t) => (t.id === taskId ? updatedTask : t)) });
   saveTasks();
-  saveTaskToFirebase(updatedTask);
+
+  if (!wasCompleted) {
+    recordCompletion();
+    updateCompletionBadge();
+  }
 
   announce(
     wasCompleted ? `Subtask uncompleted: ${subtask.text}` : `Subtask completed: ${subtask.text}`,
   );
 
-  // Check if all subtasks are done
-  if (updatedSubtasks.every((st) => st.completed)) {
-    setTimeout(() => sounds.fanfare(), 200);
+  if (updatedSubs.every((st) => st.completed)) {
+    setTimeout(() => {
+      sounds.fanfare();
+      allComplete();
+    }, 200);
   }
 }
 
 function deleteSubtask(taskId, subtaskId) {
   const { tasks } = store.getState();
   const task = tasks.find((t) => t.id === taskId);
-  if (!task || !task.subtasks) return;
-
-  const subtask = task.subtasks.find((st) => st.id === subtaskId);
+  if (!task?.subtasks) return;
   sounds.remove();
-
-  const updatedTask = {
-    ...task,
-    subtasks: task.subtasks.filter((st) => st.id !== subtaskId),
-  };
-  const updated = tasks.map((t) => (t.id === taskId ? updatedTask : t));
-
-  store.setState({ tasks: updated });
+  const updatedTask = { ...task, subtasks: task.subtasks.filter((st) => st.id !== subtaskId) };
+  store.setState({ tasks: tasks.map((t) => (t.id === taskId ? updatedTask : t)) });
   saveTasks();
-  saveTaskToFirebase(updatedTask);
-  if (subtask) announce(`Subtask deleted: ${subtask.text}`);
 }
 
 // ============================================
@@ -389,11 +401,10 @@ function saveTasks() {
 }
 
 // ============================================
-// RENDERING
+// RENDERING HELPERS
 // ============================================
 function formatTaskTime(timestamp) {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return new Date(timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
 function getSubtaskProgress(task) {
@@ -402,116 +413,135 @@ function getSubtaskProgress(task) {
   return `<span class="task-progress">${done}/${task.subtasks.length}</span>`;
 }
 
+function getDueBadge(task) {
+  if (!task.dueDate) return '';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(task.dueDate + 'T00:00:00');
+  const diff = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+
+  if (diff < 0) return '<span class="due-badge due-overdue">Overdue</span>';
+  if (diff === 0) return '<span class="due-badge due-today">Due today</span>';
+  if (diff === 1) return '<span class="due-badge due-tomorrow">Tomorrow</span>';
+  if (diff <= 7)
+    return `<span class="due-badge due-upcoming">${due.toLocaleDateString('en-US', { weekday: 'short' })}</span>`;
+  return `<span class="due-badge due-upcoming">${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>`;
+}
+
+function getStreakBadge(task) {
+  if (!task.streak || task.streak <= 0) return '';
+  return `<span class="streak-badge">\uD83D\uDD25 ${task.streak}</span>`;
+}
+
+function getProjectBadge(task) {
+  if (!task.project) return '';
+  const color = getProjectColor(task.project);
+  return `<span class="project-badge" style="--badge-color: ${color}">${escapeHtml(task.project)}</span>`;
+}
+
 function renderSubtasks(task) {
   const subtasks = task.subtasks || [];
-
-  const subtasksHtml = subtasks
+  const html = subtasks
     .map(
-      (subtask) => `
-    <li class="subtask-item ${subtask.completed ? 'completed' : ''}" data-subtask-id="${subtask.id}">
-      <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}"
-           role="checkbox" aria-checked="${subtask.completed}" tabindex="0"
-           aria-label="Mark subtask ${subtask.completed ? 'incomplete' : 'complete'}">
+      (st) => `
+    <li class="subtask-item ${st.completed ? 'completed' : ''}" data-subtask-id="${st.id}">
+      <div class="subtask-checkbox ${st.completed ? 'checked' : ''}" role="checkbox" aria-checked="${st.completed}" tabindex="0">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
       </div>
-      <span class="subtask-text">${escapeHtml(subtask.text)}</span>
+      <span class="subtask-text">${escapeHtml(st.text)}</span>
       <button class="subtask-delete" aria-label="Delete subtask">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
-    </li>
-  `,
+    </li>`,
     )
     .join('');
 
-  return `
-    <div class="subtask-container">
-      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">
-        ${subtasksHtml}
-      </ul>
-      <div class="subtask-input-container">
-        <input type="text" class="subtask-input" placeholder="Add subtask..."
-               maxlength="${MAX_SUBTASK_LENGTH}" aria-label="New subtask text">
-        <button class="subtask-add-btn" aria-label="Add subtask">Add</button>
-      </div>
+  return `<div class="subtask-container">
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">${html}</ul>
+    <div class="subtask-input-container">
+      <input type="text" class="subtask-input" placeholder="Add subtask..." maxlength="${MAX_SUBTASK_LENGTH}">
+      <button class="subtask-add-btn">Add</button>
     </div>
-  `;
+  </div>`;
 }
 
+// ============================================
+// MAIN RENDER
+// ============================================
 function renderTasks() {
   if (!taskListEl) return;
+  const { tasks, activeProject, focusedTaskId } = store.getState();
 
-  const { tasks } = store.getState();
+  // Filter by project
+  let filtered = tasks;
+  if (activeProject === 'none') {
+    filtered = tasks.filter((t) => !t.project);
+  } else if (activeProject && activeProject !== 'all') {
+    filtered = tasks.filter((t) => t.project === activeProject);
+  }
 
-  if (tasks.length === 0) {
-    taskListEl.innerHTML = `
-      <li class="empty-state">
-        <div class="empty-illustration">\u2728</div>
-        <h3 class="empty-title">Your day is wide open</h3>
-        <p class="empty-subtitle">Add your first task to get started</p>
-      </li>
-    `;
+  if (filtered.length === 0) {
+    taskListEl.innerHTML = `<li class="empty-state">
+      <div class="empty-illustration">\u2728</div>
+      <h3 class="empty-title">Your day is wide open</h3>
+      <p class="empty-subtitle">Add your first task to get started</p>
+    </li>`;
     return;
   }
 
-  // Sort: incomplete first, then by creation time (newest first for incomplete)
-  const sortedTasks = [...tasks].sort((a, b) => {
-    const aComplete = a.subtasks?.length > 0 ? a.subtasks.every((st) => st.completed) : a.completed;
-    const bComplete = b.subtasks?.length > 0 ? b.subtasks.every((st) => st.completed) : b.completed;
+  // Sort: completion → priority → dueDate → createdAt
+  const sorted = [...filtered].sort((a, b) => {
+    const ac = a.subtasks?.length > 0 ? a.subtasks.every((st) => st.completed) : a.completed;
+    const bc = b.subtasks?.length > 0 ? b.subtasks.every((st) => st.completed) : b.completed;
+    if (ac !== bc) return ac ? 1 : -1;
 
-    if (aComplete !== bComplete) return aComplete ? 1 : -1;
+    const pa = PRIORITY_ORDER[a.priority || 'none'] ?? 3;
+    const pb = PRIORITY_ORDER[b.priority || 'none'] ?? 3;
+    if (pa !== pb) return pa - pb;
+
+    if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+    if (a.dueDate) return -1;
+    if (b.dueDate) return 1;
+
     return (b.createdAt || 0) - (a.createdAt || 0);
   });
 
-  taskListEl.innerHTML = sortedTasks
+  taskListEl.innerHTML = sorted
     .map((task) => {
-      const hasSubtasks = task.subtasks && task.subtasks.length > 0;
-      const isExpanded = task.expanded || false;
-      const allSubtasksDone = hasSubtasks && task.subtasks.every((st) => st.completed);
+      const hasSub = task.subtasks && task.subtasks.length > 0;
+      const exp = task.expanded || false;
+      const allDone = hasSub && task.subtasks.every((st) => st.completed);
+      const isFocused = task.id === focusedTaskId;
+      const timeStr = formatTimeSpent(task.timeSpent);
 
-      return `
-      <li class="task-item ${task.completed || allSubtasksDone ? 'completed' : ''} ${hasSubtasks ? 'has-subtasks' : ''} ${isExpanded ? 'expanded' : ''}" data-id="${task.id}">
+      return `<li class="task-item ${task.completed || allDone ? 'completed' : ''} ${hasSub ? 'has-subtasks' : ''} ${exp ? 'expanded' : ''} ${isFocused ? 'focused' : ''}" data-id="${task.id}">
         ${
-          hasSubtasks
-            ? `
-          <button class="task-expand" aria-label="Expand subtasks" aria-expanded="${isExpanded}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        `
-            : `
-          <div class="task-checkbox ${task.completed ? 'checked' : ''}"
-               role="checkbox" aria-checked="${task.completed}" tabindex="0"
-               aria-label="Mark task ${task.completed ? 'incomplete' : 'complete'}">
+          hasSub
+            ? `<button class="task-expand" aria-label="Expand subtasks" aria-expanded="${exp}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>`
+            : `<div class="task-checkbox ${task.completed ? 'checked' : ''}" role="checkbox" aria-checked="${task.completed}" tabindex="0">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </div>
-        `
+          </div>`
         }
+        ${task.priority && task.priority !== 'none' ? `<div class="priority-dot priority-${task.priority}" title="Priority: ${task.priority}"></div>` : ''}
         <div class="task-content">
-          <span class="task-text">${escapeHtml(task.text)}${getSubtaskProgress(task)}</span>
-          <span class="task-time">Added at ${formatTaskTime(task.createdAt || task.id)}</span>
+          <span class="task-text">${escapeHtml(task.text)}${getSubtaskProgress(task)}${getProjectBadge(task)}${getStreakBadge(task)}${timeStr ? `<span class="task-time-spent">${timeStr} spent</span>` : ''}</span>
+          <span class="task-time">${formatTaskTime(task.createdAt || task.id)}${getDueBadge(task)}${task.recurrence ? ' <span class="recurrence-indicator">\u{1F501}</span>' : ''}</span>
         </div>
-        <button class="task-add-subtask" aria-label="${isExpanded ? 'Collapse' : 'Add subtask'}">
+        <button class="task-start-focus" aria-label="Start focus timer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </button>
+        <button class="task-add-subtask" aria-label="${exp ? 'Collapse' : 'Add subtask'}">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            ${
-              isExpanded
-                ? '<line x1="5" y1="12" x2="19" y2="12"></line>'
-                : '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>'
-            }
+            ${exp ? '<line x1="5" y1="12" x2="19" y2="12"></line>' : '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>'}
           </svg>
         </button>
         <button class="task-delete" aria-label="Delete task">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        ${isExpanded ? renderSubtasks(task) : ''}
-      </li>
-    `;
+        ${exp ? renderSubtasks(task) : ''}
+      </li>`;
     })
     .join('');
 }

@@ -23,6 +23,11 @@ function createStore(initialState) {
 const savedTasks = JSON.parse(localStorage.getItem('today_tasks') || '[]');
 const savedTheme = localStorage.getItem('today_theme') || 'minimal';
 const savedSound = localStorage.getItem('today_sound') !== 'false';
+const savedDarkMode = localStorage.getItem('today_darkmode') || 'system';
+const savedProjects = JSON.parse(
+  localStorage.getItem('today_projects') || '["Personal","Work","Health"]',
+);
+const savedActiveProject = localStorage.getItem('today_active_project') || 'all';
 
 // Username: env var > localStorage > default
 const envUsername =
@@ -35,4 +40,10 @@ export const store = createStore({
   soundEnabled: savedSound,
   username: savedUsername,
   syncStatus: { status: 'offline', text: 'Local Only' },
+  // New feature state
+  darkMode: savedDarkMode,
+  projects: savedProjects,
+  activeProject: savedActiveProject,
+  focusedTaskId: null,
+  focusMode: false,
 });

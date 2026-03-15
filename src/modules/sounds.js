@@ -187,6 +187,26 @@ export const sounds = {
     });
   },
 
+  // Timer done - clear bell sound
+  timerDone() {
+    if (!shouldPlay()) return;
+    const frequencies = [659.25, 783.99, 987.77, 1318.51]; // E5, G5, B5, E6
+    frequencies.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      const t = audioCtx.currentTime + i * 0.15;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.12, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+      osc.start(t);
+      osc.stop(t + 0.8);
+    });
+  },
+
   // Toggle sound (special - always plays regardless of soundEnabled)
   toggle() {
     if (!audioCtx) return;

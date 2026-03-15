@@ -1,0 +1,42 @@
+.streak-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-left: 6px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(239, 68, 68, 0.2));
+  color: #f97316;
+}
+
+[data-theme='dark'] .streak-badge,
+[data-theme='oled'] .streak-badge {
+  color: #fb923c;
+}
+
+.recurrence-indicator {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.recurrence-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recurrence-select {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  outline: none;
+  padding: 8px 4px;
+}
+
+.recurrence-select option {
+  background: var(--bg-card-solid);
+  color: var(--text-primary);
+}

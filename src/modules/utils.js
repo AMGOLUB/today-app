@@ -13,6 +13,15 @@ export const MAX_SUBTASK_LENGTH = 200;
 export const MAX_TASKS = 100;
 export const MAX_SUBTASKS_PER_TASK = 20;
 
+export const PRIORITY_LEVELS = [
+  { id: 'high', label: 'High', color: '#ef4444' },
+  { id: 'medium', label: 'Medium', color: '#eab308' },
+  { id: 'low', label: 'Low', color: '#22c55e' },
+  { id: 'none', label: 'None', color: 'transparent' },
+];
+
+export const PRIORITY_ORDER = { high: 0, medium: 1, low: 2, none: 3 };
+
 export const QUOTES = [
   'The secret of getting ahead is getting started.',
   'Small steps every day lead to big changes.',
