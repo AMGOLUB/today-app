@@ -43,26 +43,4 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Dark mode button */
-.darkmode-btn {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-card);
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm), var(--shadow-glow);
-}
-
-.darkmode-btn:hover {
-  background: var(--bg-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md), var(--shadow-glow);
-}
+/* Dark mode button uses .icon-btn from components.css */

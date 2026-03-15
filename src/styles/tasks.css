@@ -8,12 +8,13 @@
 .task-input-container {
   display: flex;
   align-items: center;
+  gap: 8px;
   background: var(--bg-card);
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 8px 8px 8px 28px;
+  padding: 8px 8px 8px 24px;
   box-shadow: var(--shadow-md), var(--shadow-glow);
   transition: all 0.3s ease;
 }
@@ -32,31 +33,121 @@
   border: none;
   background: transparent;
   font-family: inherit;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--text-primary);
   outline: none;
   padding: 14px 0;
+  min-width: 0;
 }
 
 .task-input::placeholder {
   color: var(--text-muted);
 }
 
+.input-options-toggle {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.input-options-toggle:hover,
+.input-options-toggle.active {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+[data-theme='dark'] .input-options-toggle,
+[data-theme='oled'] .input-options-toggle {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Collapsible options row */
+.task-options-row {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  animation: fadeUp 0.2s ease;
+}
+
+.task-options-row.open {
+  display: flex;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.options-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.option-input,
+.option-select {
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.option-input:focus,
+.option-select:focus {
+  border-color: var(--accent);
+}
+
+.option-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
 .add-btn {
   background: var(--accent);
   border: none;
   border-radius: var(--radius-md);
-  padding: 16px 28px;
+  padding: 14px 24px;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   box-shadow: 0 4px 15px rgba(224, 122, 95, 0.4);
+  flex-shrink: 0;
 }
 
 .add-btn:hover {

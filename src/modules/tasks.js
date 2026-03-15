@@ -99,6 +99,17 @@ export function initTasks() {
 
   document.getElementById('clearCompletedBtn').addEventListener('click', clearCompleted);
 
+  // Options toggle
+  const optionsToggle = document.getElementById('inputOptionsToggle');
+  const optionsRow = document.getElementById('taskOptionsRow');
+  if (optionsToggle && optionsRow) {
+    optionsToggle.addEventListener('click', () => {
+      optionsRow.classList.toggle('open');
+      optionsToggle.classList.toggle('active');
+      sounds.click();
+    });
+  }
+
   // Priority picker
   document.querySelector('.priority-picker')?.addEventListener('click', (e) => {
     const dot = e.target.closest('.priority-picker-dot');
